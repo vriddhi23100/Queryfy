@@ -1,0 +1,140 @@
+/* Global Box-Sizing Fix */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* General Reset and Body Styling */
+body {
+    font-family: 'Georgia', serif;
+    background: linear-gradient(120deg, #a1c4fd, #c2e9fb);
+    margin: 0;
+    padding: 0;
+    animation: backgroundFade 8s infinite alternate;
+    color: #333;
+}
+
+/* Smooth Background Animation */
+@keyframes backgroundFade {
+    0% {
+        background: linear-gradient(120deg, #a1c4fd, #e1d010);
+    }
+    100% {
+        background: linear-gradient(120deg, #b8559c, #ffcb93);
+    }
+}
+
+/* Container Styling */
+.container {
+    width: 60%;
+    margin: 50px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Headings */
+h1 {
+    text-align: center;
+    color: #444;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    animation: fadeInDown 1s ease;
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Labels */
+label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 1.6em;
+}
+
+/* Inputs and Select */
+input, select {
+    width: 100%;
+    width: 100%; /* Keeps it within the container */
+    box-sizing: border-box; /* Ensures padding and border are part of the width */
+    padding: 14px;
+    border-radius: 8px;
+    margin: 5px 0 20px;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+/* Placeholder Opacity for Select */
+select::placeholder {
+    color: rgba(0, 0, 0, 0.217);
+}
+
+/* Specific Styling for Prompt Placeholder */
+select option[value=""] {
+    color: rgba(0, 0, 0, 0.242);
+}
+/* Button Styling */
+button {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 12px;
+    font-size: 1.6em;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(90deg, #0056b3, #003f7f);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Transitions for Forms */
+form {
+    animation: slideIn 0.7s ease forwards;
+}
+
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

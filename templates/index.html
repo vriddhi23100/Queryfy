@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queryfy</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>QUERYFY</h1>
+        <form id="questionForm" action="/generate" method="post" enctype="multipart/form-data">
+            <!-- File Upload -->
+            <label for="pdf_file">Upload Document:</label>
+            <input type="file" name="pdf_file" id="pdf_file" required>
+            
+            <!-- Question Type -->
+            <label for="question_type">Question Type:</label>
+            <select name="question_type" id="question_type" required>
+                <option value="" disabled selected>Select Question Type</option>
+                <option value="MCQ">MCQ</option>
+                <option value="subjective">Subjective</option>
+                <option value="fill-ups">Fill-in-the-Blanks</option>
+                <option value="true/false">True/False</option>
+            </select>
+
+            <!-- Number of Questions -->
+            <label for="num_questions">Number of Questions:</label>
+            <input type="number" name="num_questions" id="num_questions" required>
+
+            <!-- Output Format -->
+            <label for="output_format">Question Paper Format:</label>
+            <select name="output_format" id="output_format" required>
+                <option value="" disabled selected>Select Format</option>
+                <option value="pdf">PDF</option>
+                <option value="form">Google Form</option>
+            </select>
+
+            <!-- Dynamic Field for Email (Google Form) -->
+            <div id="emailField" style="display: none;">
+                <label for="email">Email to Share Form:</label>
+                <input type="email" name="email" id="email">
+            </div>
+
+            <!-- Dynamic Subject and Marks Fields (PDF) -->
+            <div id="pdfFields" style="display: none;">
+                <label for="subject">Subject:</label>
+                <input type="text" name="subject" id="subject">
+
+                <label for="marks">Max Marks:</label>
+                <input type="number" name="marks" id="marks">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Generate</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript to dynamically show/hide fields based on output format
+        const outputFormat = document.getElementById('output_format');
+        const emailField = document.getElementById('emailField');
+        const pdfFields = document.getElementById('pdfFields');
+        const emailInput = document.getElementById('email');
+        const subjectInput = document.getElementById('subject');
+        const marksInput = document.getElementById('marks');
+
+        outputFormat.addEventListener('change', function () {
+            if (this.value === 'form') {
+                emailField.style.display = 'block'; // Show email field
+                pdfFields.style.display = 'none';  // Hide PDF fields
+                emailInput.required = true;        // Make email required
+                subjectInput.required = false;     // Remove required from PDF fields
+                marksInput.required = false;
+            } else {
+                emailField.style.display = 'none'; // Hide email field
+                pdfFields.style.display = 'block'; // Show PDF fields
+                emailInput.required = false;      // Remove required from email
+                subjectInput.required = true;     // Make PDF fields required
+                marksInput.required = true;
+            }
+        });
+    </script>
+</body>
+</html>
