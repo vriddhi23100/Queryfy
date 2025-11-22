@@ -11,6 +11,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -116,6 +117,33 @@
         .warning-box strong { color: #664d03; }
         .question-type-info { font-size: 0.85em; color: #666; margin-top: 5px; font-style: italic; }
         .file-types { font-size: 0.8em; color: #888; margin-top: 5px; }
+        
+        /* Footer Styles */
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85em;
+            padding: 15px;
+        }
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+        .footer .developer {
+            margin-bottom: 8px;
+        }
+        .footer .copyright {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+        
         @media (max-width: 600px) {
             .container { padding: 25px; }
             h1 { font-size: 2em; }
@@ -208,7 +236,8 @@
 
         <div class="message" id="message"></div>
     </div>
-     <footer class="footer">
+
+    <footer class="footer">
         <div class="developer">
             Developed with ❤️ by <a href="https://github.com/vriddhi23100" target="_blank">VJ</a>
         </div>
@@ -318,7 +347,6 @@
                         showMessage('error', `❌ Error: ${text}`);
                     }
                 } else {
-                    // Google Form response
                     const contentType = response.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         const data = await response.json();
