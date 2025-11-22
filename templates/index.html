@@ -3,83 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queryfy</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Queryfy - AI Question Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.95em; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; color: #444; font-weight: 600; font-size: 0.95em; }
+        input[type="file"], input[type="text"], input[type="email"], input[type="number"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        input[type="file"]:focus, input[type="text"]:focus, input[type="email"]:focus,
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        input[type="file"] { padding: 10px; cursor: pointer; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .loading { display: none; text-align: center; margin-top: 20px; }
+        .loading.active { display: block; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .message { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #856404;
+        }
+        .warning-box strong { color: #664d03; }
+        .question-type-info { font-size: 0.85em; color: #666; margin-top: 5px; font-style: italic; }
+        .file-types { font-size: 0.8em; color: #888; margin-top: 5px; }
+        @media (max-width: 600px) {
+            .container { padding: 25px; }
+            h1 { font-size: 2em; }
+            .two-column { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>QUERYFY</h1>
-        <form id="questionForm" action="/generate" method="post" enctype="multipart/form-data">
-            <!-- File Upload -->
-            <label for="pdf_file">Upload Document:</label>
-            <input type="file" name="pdf_file" id="pdf_file" required>
-            
-            <!-- Question Type -->
-            <label for="question_type">Question Type:</label>
-            <select name="question_type" id="question_type" required>
-                <option value="" disabled selected>Select Question Type</option>
-                <option value="MCQ">MCQ</option>
-                <option value="subjective">Subjective</option>
-                <option value="fill-ups">Fill-in-the-Blanks</option>
-                <option value="true/false">True/False</option>
-            </select>
+        <h1>🎓 Queryfy</h1>
+        <p class="subtitle">Transform Documents into Professional Assessments with AI</p>
 
-            <!-- Number of Questions -->
-            <label for="num_questions">Number of Questions:</label>
-            <input type="number" name="num_questions" id="num_questions" required>
+        <div class="info-box">
+            📄 Upload your study material (PDF, Word, PowerPoint, or Text) and generate high-quality exam questions instantly!
+        </div>
 
-            <!-- Output Format -->
-            <label for="output_format">Question Paper Format:</label>
-            <select name="output_format" id="output_format" required>
-                <option value="" disabled selected>Select Format</option>
-                <option value="pdf">PDF</option>
-                <option value="form">Google Form</option>
-            </select>
+        <div class="warning-box">
+            ⚠️ <strong>Privacy Notice:</strong> Your uploaded content is processed using AI services (Google Gemini). 
+            Please <strong>do not upload sensitive, confidential, or personal data</strong>. 
+            We do not store your files - they are deleted immediately after processing.
+        </div>
 
-            <!-- Dynamic Field for Email (Google Form) -->
-            <div id="emailField" style="display: none;">
-                <label for="email">Email to Share Form:</label>
-                <input type="email" name="email" id="email">
+        <form id="questionForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="pdf_file">📎 Upload Document *</label>
+                <input type="file" id="pdf_file" name="pdf_file" accept=".pdf,.docx,.pptx,.txt" required>
+                <div class="file-types">Supported: PDF, Word (.docx), PowerPoint (.pptx), Text (.txt)</div>
             </div>
 
-            <!-- Dynamic Subject and Marks Fields (PDF) -->
-            <div id="pdfFields" style="display: none;">
-                <label for="subject">Subject:</label>
-                <input type="text" name="subject" id="subject">
-
-                <label for="marks">Max Marks:</label>
-                <input type="number" name="marks" id="marks">
+            <div class="two-column">
+                <div class="form-group">
+                    <label for="subject">📚 Subject</label>
+                    <input type="text" id="subject" name="subject" placeholder="e.g., Mathematics" value="General">
+                </div>
+                <div class="form-group">
+                    <label for="marks">📊 Total Marks</label>
+                    <input type="number" id="marks" name="marks" placeholder="100" value="100" min="1">
+                </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit">Generate</button>
+            <div class="form-group">
+                <label for="question_type">📝 Question Type *</label>
+                <select id="question_type" name="question_type" required>
+                    <option value="mcq">Multiple Choice Questions (MCQ)</option>
+                    <option value="true/false">True/False</option>
+                    <option value="fill-ups">Fill in the Blanks</option>
+                    <option value="short answer">Short Answer</option>
+                    <option value="subjective">Subjective/Essay Type</option>
+                    <option value="numerical">Numerical Problems</option>
+                </select>
+                <div class="question-type-info" id="questionTypeInfo">Professional MCQs with 4 options and varied difficulty</div>
+            </div>
+
+            <div class="form-group">
+                <label for="num_questions">🔢 Number of Questions *</label>
+                <input type="number" id="num_questions" name="num_questions" min="1" max="50" value="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="output_format">💾 Output Format *</label>
+                <select id="output_format" name="output_format" required>
+                    <option value="pdf">PDF Document (Non-editable)</option>
+                    <option value="docx">Word Document (Editable)</option>
+                    <option value="form">Google Form</option>
+                </select>
+                <div class="question-type-info" id="outputFormatInfo">Download as PDF - best for printing</div>
+            </div>
+
+            <div class="form-group" id="answerKeyGroup">
+                <label>
+                    <input type="checkbox" id="include_answers" name="include_answers" value="true" checked style="width: auto; margin-right: 10px;">
+                    Include Answer Key
+                </label>
+                <div class="question-type-info">Answer key will be added on a separate page</div>
+            </div>
+
+            <div class="form-group" id="emailGroup" style="display: none;">
+                <label for="email">📧 Email Address (for Google Form sharing) *</label>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com">
+                <div class="question-type-info">Enter a valid email address to receive edit access</div>
+            </div>
+
+            <button type="submit" id="submitBtn">✨ Generate Questions</button>
         </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your questions... This may take 10-30 seconds</p>
+        </div>
+
+        <div class="message" id="message"></div>
     </div>
 
     <script>
-        // JavaScript to dynamically show/hide fields based on output format
+        const form = document.getElementById('questionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
         const outputFormat = document.getElementById('output_format');
-        const emailField = document.getElementById('emailField');
-        const pdfFields = document.getElementById('pdfFields');
+        const emailGroup = document.getElementById('emailGroup');
         const emailInput = document.getElementById('email');
-        const subjectInput = document.getElementById('subject');
-        const marksInput = document.getElementById('marks');
+        const questionType = document.getElementById('question_type');
+        const questionTypeInfo = document.getElementById('questionTypeInfo');
+        const answerKeyGroup = document.getElementById('answerKeyGroup');
+        const outputFormatInfo = document.getElementById('outputFormatInfo');
 
-        outputFormat.addEventListener('change', function () {
+        const formatDescriptions = {
+            'pdf': 'Download as PDF - best for printing',
+            'docx': 'Download as Word - you can edit questions before use',
+            'form': 'Create Google Form - share online for responses'
+        };
+
+        const typeDescriptions = {
+            'mcq': 'Professional MCQs with 4 options and varied difficulty',
+            'true/false': 'Clear true/false statements testing key concepts',
+            'fill-ups': 'Fill-in-the-blank questions for terminology and facts',
+            'short answer': 'Questions requiring 3-5 sentence explanations',
+            'subjective': 'Essay-type questions testing deep understanding',
+            'numerical': 'Problem-solving questions with calculations'
+        };
+
+        questionType.addEventListener('change', function() {
+            questionTypeInfo.textContent = typeDescriptions[this.value] || '';
+        });
+
+        outputFormat.addEventListener('change', function() {
+            if (outputFormatInfo) {
+                outputFormatInfo.textContent = formatDescriptions[this.value] || '';
+            }
+            
             if (this.value === 'form') {
-                emailField.style.display = 'block'; // Show email field
-                pdfFields.style.display = 'none';  // Hide PDF fields
-                emailInput.required = true;        // Make email required
-                subjectInput.required = false;     // Remove required from PDF fields
-                marksInput.required = false;
+                emailGroup.style.display = 'block';
+                emailInput.required = true;
+                answerKeyGroup.style.display = 'none';
             } else {
-                emailField.style.display = 'none'; // Hide email field
-                pdfFields.style.display = 'block'; // Show PDF fields
-                emailInput.required = false;      // Remove required from email
-                subjectInput.required = true;     // Make PDF fields required
-                marksInput.required = true;
+                emailGroup.style.display = 'none';
+                emailInput.required = false;
+                answerKeyGroup.style.display = 'block';
             }
         });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            
+            const includeAnswersCheckbox = document.getElementById('include_answers');
+            formData.delete('include_answers');
+            formData.append('include_answers', includeAnswersCheckbox.checked ? 'true' : 'false');
+            
+            if (outputFormat.value === 'form') {
+                const email = emailInput.value.trim();
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                
+                if (!email) {
+                    showMessage('error', '❌ Please enter an email address for Google Form sharing.');
+                    return;
+                }
+                
+                if (!emailPattern.test(email)) {
+                    showMessage('error', '❌ Please enter a valid email address.');
+                    return;
+                }
+            }
+            
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+            message.style.display = 'none';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (outputFormat.value === 'pdf' || outputFormat.value === 'docx') {
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        const ext = outputFormat.value === 'docx' ? 'docx' : 'pdf';
+                        a.download = `${formData.get('subject')}_Assessment.${ext}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        const formatName = outputFormat.value === 'docx' ? 'Word document' : 'PDF';
+                        showMessage('success', `✅ ${formatName} generated successfully! Download started.`);
+                    } else {
+                        const text = await response.text();
+                        showMessage('error', `❌ Error: ${text}`);
+                    }
+                } else {
+                    // Google Form response
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        if (data.success) {
+                            showMessage('success', `✅ ${data.message}<br><br><a href="${data.form_url}" target="_blank" style="color: #155724; font-weight: bold;">📝 Open Google Form →</a>`);
+                        } else {
+                            showMessage('error', `❌ ${data.message}`);
+                        }
+                    } else {
+                        const text = await response.text();
+                        showMessage('error', `❌ Error: ${text}`);
+                    }
+                }
+            } catch (error) {
+                showMessage('error', `❌ An error occurred: ${error.message}`);
+            } finally {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showMessage(type, text) {
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            message.style.display = 'block';
+        }
     </script>
 </body>
 </html>
